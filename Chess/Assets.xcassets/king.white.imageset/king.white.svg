@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 243 304" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+    <g transform="matrix(1,0,0,1,-2033.881766,-4512.302364)">
+        <g>
+            <g transform="matrix(0.1,0,0,-0.1,0,5106)">
+                <path d="M21554.219,4877.773C21415.586,4877.773 21346.211,4704.453 21346.211,4704.453C21301.992,4615.898 21333.203,4470.82 21383.516,4333.359C21084.609,4654.57 20614.688,4725.625 20445,4357.812C20236.992,3941.836 20791.602,3664.492 20791.602,3664.492L20791.602,3144.492C21172.891,2901.836 21866.211,2901.836 22247.383,3144.492L22247.383,3629.805C22247.383,3629.805 22871.289,3941.836 22663.398,4357.812C22450.781,4703.32 22014.297,4661.367 21743.984,4388.828C21782.188,4508.633 21800.508,4627.773 21762.188,4704.453C21762.188,4704.453 21692.891,4877.773 21554.219,4877.773Z" style="fill:rgb(92,92,92);fill-rule:nonzero;stroke:rgb(92,92,92);stroke-width:119.01px;"/>
+            </g>
+            <g>
+                <g transform="matrix(0.1,0,0,-0.1,0,5106)">
+                    <path d="M21550.703,5193.867L21550.703,5564.219" style="fill:none;fill-rule:nonzero;stroke:rgb(254,254,254);stroke-width:180.81px;stroke-linejoin:miter;"/>
+                </g>
+                <g transform="matrix(0.1,0,0,-0.1,0,5106)">
+                    <path d="M21374.492,5428.516L21721.211,5428.516" style="fill:none;fill-rule:nonzero;stroke:rgb(254,254,254);stroke-width:180.81px;stroke-linejoin:miter;"/>
+                </g>
+                <g transform="matrix(0.1,0,0,-0.1,0,5106)">
+                    <path d="M21554.219,5173.789L21554.219,5563.789" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:113.01px;stroke-linejoin:miter;"/>
+                </g>
+                <g transform="matrix(0.1,0,0,-0.1,0,5106)">
+                    <path d="M21554.219,4246.445C21554.219,4246.445 21866.211,4766.445 21762.188,4974.453C21762.188,4974.453 21692.891,5147.773 21554.219,5147.773C21415.586,5147.773 21346.211,4974.453 21346.211,4974.453C21242.188,4766.445 21554.219,4246.445 21554.219,4246.445" style="fill:rgb(254,254,254);fill-rule:nonzero;stroke:black;stroke-width:113.01px;stroke-linecap:butt;stroke-linejoin:miter;"/>
+                </g>
+                <g transform="matrix(0.1,0,0,-0.1,0,5106)">
+                    <path d="M20791.602,3414.492C21172.891,3171.836 21866.211,3171.836 22247.383,3414.492L22247.383,3899.805C22247.383,3899.805 22871.289,4211.836 22663.398,4627.812C22386.094,5078.477 21727.5,4870.469 21554.219,4350.469L21554.219,4107.812L21554.219,4350.469C21311.602,4870.469 20653.008,5078.477 20445,4627.812C20236.992,4211.836 20791.602,3934.492 20791.602,3934.492L20791.602,3414.492Z" style="fill:rgb(254,254,254);fill-rule:nonzero;stroke:black;stroke-width:113.01px;"/>
+                </g>
+                <g transform="matrix(0.1,0,0,-0.1,0,5106)">
+                    <path d="M21380.898,5425.117L21727.5,5425.117" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:113.01px;stroke-linejoin:miter;"/>
+                </g>
+                <g transform="matrix(0.1,0,0,-0.1,0,5106)">
+                    <path d="M20791.602,3934.492C21172.891,4107.812 21866.211,4107.812 22247.383,3899.805" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:113.01px;stroke-linejoin:miter;"/>
+                </g>
+                <g transform="matrix(0.1,0,0,-0.1,0,5106)">
+                    <path d="M20791.602,3414.492C21172.891,3587.812 21866.211,3587.812 22247.383,3414.492" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:113.01px;"/>
+                </g>
+                <g transform="matrix(0.1,0,0,-0.1,0,5106)">
+                    <path d="M20791.602,3657.148C21172.891,3795.82 21866.211,3795.82 22247.383,3657.148" style="fill:none;fill-rule:nonzero;stroke:black;stroke-width:113.01px;"/>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
