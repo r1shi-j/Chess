@@ -9,7 +9,8 @@ import Foundation
 
 enum EndState: String {
     case manual = "Manual"
-    case draw = "Draw"
+    case userDraw = "Draw"
+    case autoDraw = "Draw (auto)"
     case checkmate = "Checkmate"
     case stalemate = "Stalemate"
     
@@ -17,7 +18,9 @@ enum EndState: String {
         switch self {
             case .manual:
                 "Game ended manually"
-            case .draw:
+            case .userDraw:
+                "Players agreed on a draw"
+            case .autoDraw:
                 "Draw by insufficient material"
             case .checkmate:
                 "Game ended via checkmate"

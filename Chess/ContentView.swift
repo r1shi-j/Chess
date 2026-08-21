@@ -19,8 +19,9 @@ struct ContentView: View {
     @State private var enPassantTarget: (row: Int, col: Int)?
     @State private var isInCheck = false
     @State private var endState: EndState?
-    @State private var isObserving = false
+    @State private var previousEndState: EndState?
     @State private var isShowingRestartConfirmation = false
+    @State private var isShowingDrawConfirmation = false
     @Namespace private var chessAnimation
     
     
@@ -71,12 +72,12 @@ struct ContentView: View {
             }
             .padding(40)
         }
-        .allowsHitTesting(!isObserving)
-        .alert("\(whoMoves.swapped().rawValue) Won", item: $endState, actions: { endState in
+        .allowsHitTesting(!(endState != nil && (endState == nil && previousEndState != nil)))
+        .alert((endState == .userDraw || endState == .autoDraw) ? "Draw" : "\(whoMoves.swapped().rawValue) Won", item: $endState, actions: { endState in
             Button("Observe", role: .close) {
                 withAnimation {
                     isInCheck = false
-                    isObserving = true
+                    previousEndState = endState
                 }
             }
             Button("New Game", role: .confirm) {
@@ -87,7 +88,6 @@ struct ContentView: View {
         }, message: { endState in
             Text(endState.description())
         })
-        
         .alert("Are you sure you want to restart?", isPresented: $isShowingRestartConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("OK", role: .confirm) {
@@ -96,25 +96,39 @@ struct ContentView: View {
                 }
             }
         }
+        .alert("Are you sure you want to call the match a draw?", isPresented: $isShowingDrawConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("OK", role: .confirm) {
+                withAnimation {
+                    endState = .userDraw
+                }
+            }
+        }
         .toolbarVisibility(.hidden, for: .statusBar)
         .safeAreaInset(edge: .top) {
-            Button("Reset", systemImage: "arrow.counterclockwise") {
-                withAnimation {
-                    if isObserving {
-                        resetGame()
-                    } else {
-                        isShowingRestartConfirmation = true
+            HStack {
+                Button("Reset", systemImage: "arrow.counterclockwise") {
+                    withAnimation {
+                        if previousEndState != nil {
+                            resetGame()
+                        } else {
+                            isShowingRestartConfirmation = true
+                        }
                     }
                 }
+                Spacer()
+                Button("Reset", systemImage: "hand.wave") {
+                    isShowingDrawConfirmation = true
+                }
+                .disabled(endState != nil || (endState == nil && previousEndState != nil))
             }
             .clipShape(.capsule)
             .labelStyle(.iconOnly)
             .buttonStyle(.glass)
             .padding()
-            .padding(.leading, 35)
+            .padding(.horizontal, 35)
 //            .padding(.top, 35)
             .ignoresSafeArea()
-            .frame(maxWidth: .infinity, alignment: .leading)
             .frame(height: .zero)
         }
 //        .frame(width: 700, height: 1000)
@@ -125,7 +139,7 @@ struct ContentView: View {
     // MARK: - Sub Views
     
     private func header(rotationAngle: Angle) -> some View {
-        Text(isObserving ? (endState == .draw ? "Draw" : ("\(whoMoves.rawValue) Won")) : "\(whoMoves.rawValue.lowercased()) move")
+        Text(previousEndState != nil ? ((previousEndState == .userDraw || previousEndState == .autoDraw) ? "Draw" : ("\(whoMoves.rawValue) Won")) : "\(whoMoves.rawValue.lowercased()) move")
             .font(.system(.largeTitle, design: .serif, weight: .black))
             .foregroundStyle(whoMoves == .black ? .black : Colors.accentColor)
             .fixedSize()
@@ -135,7 +149,7 @@ struct ContentView: View {
     }
     
     private func header(for side: Side) -> some View {
-        Text(isObserving ? (endState == .draw ? "Draw" : ("You \(whoMoves == side ? "Lost" : "Won")")) : "\(whoMoves == side ? "Your" : "Opponents") move")
+        Text(previousEndState != nil ? ((previousEndState == .userDraw || previousEndState == .autoDraw) ? "Draw" : ("You \(whoMoves == side ? "Lost" : "Won")")) : "\(whoMoves == side ? "Your" : "Opponents") move")
             .font(.system(.largeTitle, design: .serif, weight: .black))
             .foregroundStyle(side.color)
             .rotationEffect(side.rotationAngle)
@@ -349,7 +363,7 @@ struct ContentView: View {
         enPassantTarget = nil
         isInCheck = false
         endState = nil
-        isObserving = false
+        previousEndState = nil
         setupGame()
     }
     
