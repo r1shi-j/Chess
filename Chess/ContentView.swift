@@ -7,250 +7,10 @@
 
 import SwiftUI
 
-enum EndState: String {
-    case manual = "Manual"
-    case draw = "Draw"
-    case checkmate = "Checkmate"
-    case stalemate = "Stalemate"
-    
-    func description() -> String {
-        switch self {
-            case .manual:
-                "Game ended manually"
-            case .draw:
-                "Draw by insufficient material"
-            case .checkmate:
-                "Game ended via checkmate"
-            case .stalemate:
-                "Game ended via stalemate"
-        }
-    }
-}
-
-enum Side: String {
-    case black = "Black"
-    case white = "White"
-    
-    mutating func swap() {
-        self = self == .black ? .white : .black
-    }
-    
-    func swapped() -> Side {
-        return self == Side.black ? Side.white : Side.black
-    }
-}
-
-enum Class: String, Comparable {
-    static func < (lhs: Class, rhs: Class) -> Bool {
-        switch (lhs, rhs) {
-            case (.pawn, _): true
-            case (.knight, .pawn): false
-            case (.bishop, .pawn), (.bishop, .knight): false
-            case (.rook, .pawn), (.rook, .knight), (.rook, .bishop): false
-            case (.queen, .pawn), (.queen, .knight), (.queen, .bishop), (.queen, .rook): false
-            case (.king, _): false
-//            case (let a, let b): a == b
-            default: true
-        }
-    }
-    
-    case pawn// = ""
-    case rook// = "R"
-    case knight// = "N"
-    case bishop// = "B"
-    case queen// = "Q"
-    case king// = //"K"
-}
-
-enum Position {
-    case a8, b8, c8, d8, e8, f8, g8, h8
-    case a7, b7, c7, d7, e7, f7, g7, h7
-    case a6, b6, c6, d6, e6, f6, g6, h6
-    case a5, b5, c5, d5, e5, f5, g5, h5
-    case a4, b4, c4, d4, e4, f4, g4, h4
-    case a3, b3, c3, d3, e3, f3, g3, h3
-    case a2, b2, c2, d2, e2, f2, g2, h2
-    case a1, b1, c1, d1, e1, f1, g1, h1
-    
-    static func from(row: Int, col: Int) -> Position {
-        switch (row, col) {
-            case (1, 1): .a1
-            case (1, 2): .b1
-            case (1, 3): .c1
-            case (1, 4): .d1
-            case (1, 5): .e1
-            case (1, 6): .f1
-            case (1, 7): .g1
-            case (1, 8): .h1
-            
-            case (2, 1): .a2
-            case (2, 2): .b2
-            case (2, 3): .c2
-            case (2, 4): .d2
-            case (2, 5): .e2
-            case (2, 6): .f2
-            case (2, 7): .g2
-            case (2, 8): .h2
-                
-            case (3, 1): .a3
-            case (3, 2): .b3
-            case (3, 3): .c3
-            case (3, 4): .d3
-            case (3, 5): .e3
-            case (3, 6): .f3
-            case (3, 7): .g3
-            case (3, 8): .h3
-                
-            case (4, 1): .a4
-            case (4, 2): .b4
-            case (4, 3): .c4
-            case (4, 4): .d4
-            case (4, 5): .e4
-            case (4, 6): .f4
-            case (4, 7): .g4
-            case (4, 8): .h4
-                
-            case (5, 1): .a5
-            case (5, 2): .b5
-            case (5, 3): .c5
-            case (5, 4): .d5
-            case (5, 5): .e5
-            case (5, 6): .f5
-            case (5, 7): .g5
-            case (5, 8): .h5
-                
-            case (6, 1): .a6
-            case (6, 2): .b6
-            case (6, 3): .c6
-            case (6, 4): .d6
-            case (6, 5): .e6
-            case (6, 6): .f6
-            case (6, 7): .g6
-            case (6, 8): .h6
-                
-            case (7, 1): .a7
-            case (7, 2): .b7
-            case (7, 3): .c7
-            case (7, 4): .d7
-            case (7, 5): .e7
-            case (7, 6): .f7
-            case (7, 7): .g7
-            case (7, 8): .h7
-                
-            case (8, 1): .a8
-            case (8, 2): .b8
-            case (8, 3): .c8
-            case (8, 4): .d8
-            case (8, 5): .e8
-            case (8, 6): .f8
-            case (8, 7): .g8
-            case (8, 8): .h8
-                
-            default: .a1
-        }
-    }
-    
-    func to() -> (row: Int, col: Int) {
-        switch self {
-            case .a1: (1, 1)
-            case .b1: (1, 2)
-            case .c1: (1, 3)
-            case .d1: (1, 4)
-            case .e1: (1, 5)
-            case .f1: (1, 6)
-            case .g1: (1, 7)
-            case .h1: (1, 8)
-                
-            case .a2: (2, 1)
-            case .b2: (2, 2)
-            case .c2: (2, 3)
-            case .d2: (2, 4)
-            case .e2: (2, 5)
-            case .f2: (2, 6)
-            case .g2: (2, 7)
-            case .h2: (2, 8)
-                
-            case .a3: (3, 1)
-            case .b3: (3, 2)
-            case .c3: (3, 3)
-            case .d3: (3, 4)
-            case .e3: (3, 5)
-            case .f3: (3, 6)
-            case .g3: (3, 7)
-            case .h3: (3, 8)
-                
-            case .a4: (4, 1)
-            case .b4: (4, 2)
-            case .c4: (4, 3)
-            case .d4: (4, 4)
-            case .e4: (4, 5)
-            case .f4: (4, 6)
-            case .g4: (4, 7)
-            case .h4: (4, 8)
-                
-            case .a5: (5, 1)
-            case .b5: (5, 2)
-            case .c5: (5, 3)
-            case .d5: (5, 4)
-            case .e5: (5, 5)
-            case .f5: (5, 6)
-            case .g5: (5, 7)
-            case .h5: (5, 8)
-                
-            case .a6: (6, 1)
-            case .b6: (6, 2)
-            case .c6: (6, 3)
-            case .d6: (6, 4)
-            case .e6: (6, 5)
-            case .f6: (6, 6)
-            case .g6: (6, 7)
-            case .h6: (6, 8)
-                
-            case .a7: (7, 1)
-            case .b7: (7, 2)
-            case .c7: (7, 3)
-            case .d7: (7, 4)
-            case .e7: (7, 5)
-            case .f7: (7, 6)
-            case .g7: (7, 7)
-            case .h7: (7, 8)
-                
-            case .a8: (8, 1)
-            case .b8: (8, 2)
-            case .c8: (8, 3)
-            case .d8: (8, 4)
-            case .e8: (8, 5)
-            case .f8: (8, 6)
-            case .g8: (8, 7)
-            case .h8: (8, 8)
-        }
-    }
-}
-
-struct Piece: Equatable, Identifiable, Comparable {
-    let id: UUID = UUID()
-    var type: Class
-    let side: Side
-    var position: Position
-    
-    func imageName() -> String {
-        "\(self.type.rawValue).\(self.side == .black ? "black" : "white")"
-    }
-    
-    static func < (lhs: borrowing Piece, rhs: borrowing Piece) -> Bool {
-        lhs.type < rhs.type
-    }
-}
-
-struct Tile: Identifiable, Equatable {
-    let id: String
-    let position: Position
-    var piece: Piece?
-    var isHighlighted: Bool = false
-}
-
-// TODO: castle, en passant
+// TODO: castle, en passant, better animations, sound effects, make use of chess notation
 struct ContentView: View {
+    // MARK: - Properties
+    
     @State private var gameBoard: [[Tile]]
     @State private var selectedTile: Tile?
     @State private var whoMoves: Side = .white
@@ -261,102 +21,51 @@ struct ContentView: View {
     @State private var isObserving = false
     @State private var isShowingRestartConfirmation = false
     
+    
+    // MARK: - Init
+    
     init() {
         var gameBoard: [[Tile]] = []
-        for row in 1..<9 {
+        for row in 0..<8 {
             gameBoard.append([])
-            for col in 1..<9 {
-                let rowText = String(9-row)
-                let colText = String(Character(UnicodeScalar(col+64+32)!))
-                gameBoard[row-1].append(Tile(id: "\(rowText)\(colText)", position: Position.from(row: row, col: col)))
+            for col in 0..<8 {
+                let rowText = String(9-1-row)
+                let colText = String(Character(UnicodeScalar(col+1+64+32)!))
+                gameBoard[row].append(Tile(id: "\(rowText)\(colText)", position: Position.fromIndex(row: row, col: col)))
             }
         }
         _gameBoard = State(initialValue: gameBoard)
     }
     
-    private let accentColor: Color = .gray.mix(with: .yellow, by: 0.5).mix(with: .white, by: 0.5)
+    
+    // MARK: - Main View
     
     var body: some View {
         ZStack {
             Color.brown.mix(with: .black, by: 0.3).ignoresSafeArea()
             
             VStack(spacing: 20) {
-#if os(iOS)
-                Text("\(whoMoves.rawValue.lowercased()) move")
-                    .font(.system(.largeTitle, design: .serif, weight: .black))
-                    .foregroundStyle(whoMoves == .black ? .black : accentColor)
-                    .rotationEffect(.degrees(180))
-#endif
+                #if os(iOS)
+                header(for: .black)
+                #endif
                 
-                ZStack {
-                    Rectangle()
-                        .fill(accentColor)
-                        .opacity(0.7)
-                    LazyHGrid(rows: [.init(.fixed(20)), .init(.fixed(20))], alignment: .center, spacing: 5) {
-                        ForEach(whiteDeaths.sorted(), id: \.id) { piece in
-                            Image(piece.imageName())
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxWidth: 20, maxHeight: 20)
-                        }
-                    }
-                    if whiteDeaths.count == 0 {
-                        Text("Jail")
-                            .font(.system(.largeTitle, design: .serif, weight: .thin))
-                            .foregroundStyle(accentColor.opacity(0.25))
-                    }
-                }
-                .rotationEffect(.degrees(180))
-                .frame(width: 200, height: 70)
+                jail(for: .black, deaths: whiteDeaths)
                 
                 HStack {
-#if os(macOS)
-                    Text("\(whoMoves.rawValue.lowercased()) move")
-                        .font(.system(.largeTitle, design: .serif, weight: .black))
-                        .foregroundStyle(whoMoves == .black ? .black : accentColor)
-                        .fixedSize()
-                        .rotationEffect(.degrees(-90))
-                        .frame(width: 40, height: 200)
-                        .padding(.horizontal)
-#endif
-                    gameGrid()
-#if os(macOS)
-                    Text("\(whoMoves.rawValue.lowercased()) move")
-                        .font(.system(.largeTitle, design: .serif, weight: .black))
-                        .foregroundStyle(whoMoves == .black ? .black : accentColor)
-                        .fixedSize()
-                        .rotationEffect(.degrees(90))
-                        .frame(width: 40, height: 200)
-                        .padding(.horizontal)
-#endif
+                    #if os(macOS)
+                    header(rotationAngle: .degrees(-90))
+                    #endif
+                    board()
+                    #if os(macOS)
+                    header(rotationAngle: .degrees(90))
+                    #endif
                 }
                 
-                ZStack {
-                    Rectangle()
-                        .fill(accentColor)
-                        .opacity(0.7)
-                    LazyHGrid(rows: [.init(.fixed(20)), .init(.fixed(20))], alignment: .center, spacing: 5) {
-                        ForEach(blackDeaths.sorted(), id: \.id) { piece in
-                            Image(piece.imageName())
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxWidth: 25, maxHeight: 25)
-                            
-                        }
-                    }
-                    if blackDeaths.count == 0 {
-                        Text("Jail")
-                            .font(.system(.largeTitle, design: .serif, weight: .thin))
-                            .foregroundStyle(accentColor.opacity(0.25))
-                    }
-                }
-                .frame(width: 200, height: 70)
+                jail(for: .white, deaths: blackDeaths)
                 
-#if os(iOS)
-                Text("\(whoMoves.rawValue.lowercased()) move")
-                    .font(.system(.largeTitle, design: .serif, weight: .black))
-                    .foregroundStyle(whoMoves == .black ? .black : accentColor)
-#endif
+                #if os(iOS)
+                header(for: .white)
+                #endif
             }
             .padding(40)
         }
@@ -401,6 +110,7 @@ struct ContentView: View {
             .buttonStyle(.glass)
             .padding()
             .padding(.leading, 35)
+//            .padding(.top, 35)
             .ignoresSafeArea()
             .frame(maxWidth: .infinity, alignment: .leading)
             .frame(height: .zero)
@@ -409,199 +119,61 @@ struct ContentView: View {
         .onAppear(perform: setupGame)
     }
     
-    func gameGrid() -> some View {
+    
+    // MARK: - Sub Views
+    
+    private func header(rotationAngle: Angle) -> some View {
+        Text(isObserving ? (endState == .draw ? "Draw" : ("\(whoMoves.rawValue) Won")) : "\(whoMoves.rawValue.lowercased()) move")
+            .font(.system(.largeTitle, design: .serif, weight: .black))
+            .foregroundStyle(whoMoves == .black ? .black : Colors.accentColor)
+            .fixedSize()
+            .rotationEffect(rotationAngle)
+            .frame(width: 40, height: 200)
+            .padding(.horizontal)
+    }
+    
+    private func header(for side: Side) -> some View {
+        Text(isObserving ? (endState == .draw ? "Draw" : ("You \(whoMoves == side ? "Lost" : "Won")")) : "\(whoMoves == side ? "Your" : "Opponents") move")
+            .font(.system(.largeTitle, design: .serif, weight: .black))
+            .foregroundStyle(side.color)
+            .rotationEffect(side.rotationAngle)
+    }
+    
+    private func jail(for side: Side, deaths: [Piece]) -> some View {
+        ZStack {
+            Rectangle()
+                .fill(side.color)
+                .opacity(0.7)
+            LazyHGrid(rows: [.init(.fixed(20)), .init(.fixed(20))], alignment: .center, spacing: 5) {
+                ForEach(deaths.sorted(), id: \.id) { piece in
+                    Image(piece.imageName())
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: 25, maxHeight: 25)
+                    
+                }
+            }
+            if deaths.count == 0 {
+                Text("Jail")
+                    .font(.system(.largeTitle, design: .serif, weight: .thin))
+                    .foregroundStyle(Colors.accentColor.opacity(0.25))
+            }
+        }
+        .rotationEffect(side.rotationAngle)
+        .frame(width: 200, height: 70)
+    }
+    
+    private func board() -> some View {
         Grid(alignment: .center, horizontalSpacing: 0, verticalSpacing: 0) {
             ForEach(0..<10) { row in
                 GridRow {
                     ForEach(0..<10) { col in
                         if row == 0 || col == 0 || row == 9 || col == 9 {
-                            edgeLabel(row, col)
+                            indexLabel(row: row, col: col)
                         } else {
-                            tile(row, col, gameBoard[row-1][col-1])
-                                .transition(.opacity)
+                            tile(row: row, col: col, piece: gameBoard[row-1][col-1])
                                 .onTapGesture {
-                                    // if we have a tile selected
-                                    if let selectedTile {
-                                        if selectedTile.piece == gameBoard[row-1][col-1].piece {
-                                            // if selects the same tile then deselect it
-                                            withAnimation(.easeOut) {
-                                                resetHighlightedTiles()
-                                                self.selectedTile = nil
-                                            }
-                                        } else if let piece = gameBoard[row-1][col-1].piece, piece.side == whoMoves {
-                                            // if selects a different piece on same team then show options for that tile
-                                            withAnimation(.easeIn) {
-                                                resetHighlightedTiles()
-                                                self.selectedTile = gameBoard[row-1][col-1]
-                                                showAvailableMoves(for: piece, row-1, col-1, gameBoard: &gameBoard, whoMoves: whoMoves)
-                                                filterAvailableMoves(for: piece, row-1, col-1, gameBoard: &gameBoard, whoMoves: whoMoves)
-                                            }
-                                        } else {
-                                            // else selects enemy or empty tile: standard move
-                                            
-                                            // only continue if clicked tile is highlighted as an available move
-                                            guard gameBoard[row-1][col-1].isHighlighted else { return }
-                                            
-                                            // if tries to take king do nothing
-                                            if gameBoard[row-1][col-1].piece?.type == .king { return }
-                                            
-                                            // must have made a valid move so now out of check
-                                            if isInCheck { isInCheck = false }
-                                            
-                                            // if takes a piece then add it to the deaths list
-                                            if let oldPiece = gameBoard[row-1][col-1].piece {
-                                                if whoMoves == .white {
-                                                    withAnimation(.easeIn) {
-                                                        blackDeaths.append(oldPiece)
-                                                    }
-                                                } else {
-                                                    withAnimation(.easeIn) {
-                                                        whiteDeaths.append(oldPiece)
-                                                    }
-                                                }
-                                            }
-                                            
-                                            // swapping the two pieces
-                                            let oldPos = selectedTile.position.to()
-                                            withAnimation(.easeInOut) {
-                                                gameBoard[row-1][col-1].piece = gameBoard[oldPos.row-1][oldPos.col-1].piece
-                                                gameBoard[oldPos.row-1][oldPos.col-1].piece = nil
-                                            }
-                                            
-                                            // if pawn reach end turn it into a queen
-                                            if gameBoard[row-1][col-1].piece?.type == .pawn {
-                                                if gameBoard[row-1][col-1].piece?.side == .white && row == 1 {
-                                                    withAnimation {
-                                                        gameBoard[row-1][col-1].piece?.type = .queen
-                                                    }
-                                                } else if gameBoard[row-1][col-1].piece?.side == .black && row == 8 {
-                                                    withAnimation {
-                                                        gameBoard[row-1][col-1].piece?.type = .queen
-                                                    }
-                                                }
-                                            }
-                                            
-                                            // removing highlights
-                                            withAnimation(.easeOut) {
-                                                resetHighlightedTiles()
-                                                self.selectedTile = nil
-                                            }
-                                            
-                                            
-                                            // checking if we have put opposition in check after our move
-                                            
-                                            // for each tile
-                                            for i in gameBoard.indices {
-                                                for j in gameBoard[i].indices {
-                                                    // for each piece on the side we just moved
-                                                    if let piece = gameBoard[i][j].piece, piece.side == whoMoves {
-                                                        var gameBoard2 = gameBoard
-                                                        
-                                                        // show moves for each piece
-                                                        showAvailableMoves(for: piece, i, j, gameBoard: &gameBoard2, whoMoves: whoMoves)
-                                                        
-                                                        // for each available move, if can take king right now then mark as in check
-                                                        for xi in gameBoard2.indices {
-                                                            for xj in gameBoard2[xi].indices {
-                                                                if gameBoard2[xi][xj].isHighlighted {
-                                                                    if let targetPiece = gameBoard2[xi][xj].piece, targetPiece.type == .king, targetPiece.side != whoMoves {
-                                                                        isInCheck = true
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            
-                                            // counting available moves to see if checkmate or stalemate occured as a result of our move
-                                            
-                                            var validMoveCount = 0
-                                            // for each tile
-                                            for i in gameBoard.indices {
-                                                for j in gameBoard[i].indices {
-                                                    // for each piece on the opposition
-                                                    if let piece = gameBoard[i][j].piece, piece.side != whoMoves {
-                                                        var gameBoard2 = gameBoard
-                                                        
-                                                        // show moves for each piece
-                                                        showAvailableMoves(for: piece, i, j, gameBoard: &gameBoard2, whoMoves: whoMoves.swapped())
-                                                        
-                                                        for yi in gameBoard.indices {
-                                                            for yj in gameBoard[yi].indices {
-                                                                // for each available move
-                                                                if gameBoard2[yi][yj].isHighlighted {
-                                                                    var gameBoard3 = gameBoard
-                                                                    
-                                                                    // make the move
-                                                                    gameBoard3[yi][yj].piece = gameBoard3[i][j].piece
-                                                                    gameBoard3[i][j].piece = nil
-                                                                    
-                                                                    // tracking if king can be taken
-                                                                    var kingExposed = false
-                                                                    
-                                                                    exposureCheck: for xi in gameBoard3.indices {
-                                                                        for xj in gameBoard3[xi].indices {
-                                                                            // for each piece on current team
-                                                                            if let xpiece = gameBoard3[xi][xj].piece, xpiece.side == whoMoves {
-                                                                                var gameBoard4 = gameBoard3
-                                                                                
-                                                                                // show moves for each piece
-                                                                                showAvailableMoves(for: xpiece, xi, xj, gameBoard: &gameBoard4, whoMoves: whoMoves)
-                                                                                
-                                                                                for zi in gameBoard4.indices {
-                                                                                    for zj in gameBoard4[zi].indices {
-                                                                                        // for each available move on current team
-                                                                                        if gameBoard4[zi][zj].isHighlighted {
-                                                                                            // are we able to capture the king if so flag it
-                                                                                            if let targetPiece = gameBoard4[zi][zj].piece, targetPiece.type == .king, targetPiece.side != whoMoves {
-                                                                                                kingExposed = true
-                                                                                                break exposureCheck
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    
-                                                                    // sum up all valid moves that dont involve exposing the king
-                                                                    if !kingExposed {
-                                                                        validMoveCount += 1
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            
-                                            // if no valid moves, determine checkmate or stalemate
-                                            if validMoveCount == 0 {
-                                                if isInCheck {
-                                                    endState = .checkmate
-                                                } else {
-                                                    endState = .stalemate
-                                                }
-                                            }
-                                            
-                                            // switching whose move it is
-                                            withAnimation {
-                                                whoMoves.swap()
-                                            }
-                                        }
-                                    } else {
-                                        // no selected piece so select it now
-                                        guard let piece = gameBoard[row-1][col-1].piece, piece.side == whoMoves else { return }
-                                        if isInCheck {
-                                            print("HELP IN CHCE")
-                                        }
-                                        withAnimation(.easeIn) {
-                                            selectedTile = gameBoard[row-1][col-1]
-                                            showAvailableMoves(for: piece, row-1, col-1, gameBoard: &gameBoard, whoMoves: whoMoves)
-                                            filterAvailableMoves(for: piece, row-1, col-1, gameBoard: &gameBoard, whoMoves: whoMoves)
-                                        }
-                                    }
+                                    handleTileTapped(row: row-1, col: col-1)
                                 }
                         }
                     }
@@ -610,40 +182,42 @@ struct ContentView: View {
         }
     }
     
-    @ViewBuilder func edgeLabel(_ row: Int, _ col: Int) -> some View {
-        let rowText = String(9-row)
-        let colText = String(Character(UnicodeScalar(col+64+32)!))
-        
-        if col == 0 {
-            Text(rowText)
-                .foregroundStyle(accentColor)
-                .opacity(row == 0 || row == 9 ? 0 : 1)
-                .padding(.horizontal, 6)
-        } else if col == 9 {
-            Text(rowText)
-                .foregroundStyle(accentColor)
-                .rotationEffect(Angle(degrees: 180))
-                .opacity(row == 0 || row == 9 ? 0 : 1)
-                .padding(.horizontal, 6)
-        } else {
-            if row == 0 {
-                Text(colText)
-                    .foregroundStyle(accentColor)
+    private func indexLabel(row: Int, col: Int) -> some View {
+        Group {
+            let rowText = String(9-row)
+            let colText = String(Character(UnicodeScalar(col+64+32)!))
+            
+            if col == 0 {
+                Text(rowText)
+                    .foregroundStyle(Colors.accentColor)
+                    .opacity(row == 0 || row == 9 ? 0 : 1)
+                    .padding(.horizontal, 6)
+            } else if col == 9 {
+                Text(rowText)
+                    .foregroundStyle(Colors.accentColor)
                     .rotationEffect(Angle(degrees: 180))
-                    .opacity(col == 0 || col == 9 ? 0 : 1)
-                    .padding(.vertical, 6)
-            } else if row == 9 {
-                Text(colText)
-                    .foregroundStyle(accentColor)
-                    .opacity(col == 0 || col == 9 ? 0 : 1)
-                    .padding(.vertical, 6)
+                    .opacity(row == 0 || row == 9 ? 0 : 1)
+                    .padding(.horizontal, 6)
             } else {
-                
+                if row == 0 {
+                    Text(colText)
+                        .foregroundStyle(Colors.accentColor)
+                        .rotationEffect(Angle(degrees: 180))
+                        .opacity(col == 0 || col == 9 ? 0 : 1)
+                        .padding(.vertical, 6)
+                } else if row == 9 {
+                    Text(colText)
+                        .foregroundStyle(Colors.accentColor)
+                        .opacity(col == 0 || col == 9 ? 0 : 1)
+                        .padding(.vertical, 6)
+                } else {
+                    
+                }
             }
         }
     }
     
-    func tile(_ row: Int, _ col: Int, _ item: Tile) -> some View {
+    private func tile(row: Int, col: Int, piece item: Tile) -> some View {
         let rowText = String(9-row)
         let colText = String(Character(UnicodeScalar(col+64+32)!))
         
@@ -653,7 +227,6 @@ struct ContentView: View {
                 .frame(width: 45, height: 45)
                 .foregroundStyle((row.isMultiple(of: 2) && col.isMultiple(of: 2) || !row.isMultiple(of: 2) && !col.isMultiple(of: 2)) ? .gray.mix(with: .yellow, by: 0.5).mix(with: .white, by: 0.25) : .brown.mix(with: .gray, by: 0.2))
                 .border(selectedTile?.id == "\(rowText)\(colText)" ? .black : .clear, width: 3)
-            //.border(item.isHighlighted && selectedTile == nil/*&& item.piece?.type == .king */? .red : .clear, width: 3)
                 .border(isInCheck && item.piece?.type == .king && item.piece?.side == whoMoves ? .red : .clear, width: 2)
             
             if let piece = item.piece {
@@ -661,7 +234,7 @@ struct ContentView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: 35, maxHeight: 35)
-                //                    .rotationEffect(item.piece?.side == .black ? .degrees(180) : .degrees(0))
+//                    .rotationEffect(item.piece?.side == .black ? .degrees(180) : .degrees(0))
             }
             
             if item.isHighlighted && !(isInCheck && item.piece?.type == .king && item.piece?.side == whoMoves) {
@@ -679,17 +252,16 @@ struct ContentView: View {
                         .frame(maxWidth: 10, maxHeight: 10)
                 }
             } else {
-                //                Circle()
-                //                    .fill(.green)
-                //                    .opacity(0.2)
-                //                    .aspectRatio(contentMode: .fit)
-                //                    .frame(maxWidth: 10, maxHeight: 10)
+                
             }
         }
     }
     
+    
+    // MARK: - Functions
+    
     // setting up the default chess opening
-    func setupGame() {
+    private func setupGame() {
         for row in gameBoard.indices {
             for col in gameBoard[row].indices {
                 switch (row, col) {
@@ -771,7 +343,7 @@ struct ContentView: View {
     }
     
     // resetting the game board to normal
-    func resetGame() {
+    private func resetGame() {
         selectedTile = nil
         whoMoves = .white
         whiteDeaths = []
@@ -782,8 +354,192 @@ struct ContentView: View {
         setupGame()
     }
     
+    // decide what to happen when a tile is clicked, most likely to show available moves and check for check(mate)
+    private func handleTileTapped(row: Int, col: Int) {
+        // if we have a tile selected
+        if let selectedTile {
+            if selectedTile.piece == gameBoard[row][col].piece {
+                // if selects the same tile then deselect it
+                withAnimation(.easeOut) {
+                    resetHighlightedTiles()
+                    self.selectedTile = nil
+                }
+            } else if let piece = gameBoard[row][col].piece, piece.side == whoMoves {
+                // if selects a different piece on same team then show options for that tile
+                withAnimation(.easeIn) {
+                    resetHighlightedTiles()
+                    self.selectedTile = gameBoard[row][col]
+                    showAvailableMoves(for: piece, row, col, gameBoard: &gameBoard, whoMoves: whoMoves)
+                    filterAvailableMoves(for: piece, row, col, gameBoard: &gameBoard, whoMoves: whoMoves)
+                }
+            } else {
+                // else selects enemy or empty tile: standard move
+                
+                // only continue if clicked tile is highlighted as an available move
+                guard gameBoard[row][col].isHighlighted else { return }
+                
+                // if tries to take king do nothing
+                if gameBoard[row][col].piece?.type == .king { return }
+                
+                // must have made a valid move so now out of check
+                if isInCheck { isInCheck = false }
+                
+                // if takes a piece then add it to the deaths list
+                if let oldPiece = gameBoard[row][col].piece {
+                    if whoMoves == .white {
+                        withAnimation(.easeIn) {
+                            blackDeaths.append(oldPiece)
+                        }
+                    } else {
+                        withAnimation(.easeIn) {
+                            whiteDeaths.append(oldPiece)
+                        }
+                    }
+                }
+                
+                // swapping the two pieces, and changing the position of the new piece
+                let oldPos = selectedTile.position.toIndex()
+                withAnimation(.easeInOut) {
+                    gameBoard[row][col].piece = gameBoard[oldPos.row][oldPos.col].piece
+                    gameBoard[row][col].piece?.position = gameBoard[row][col].position
+                    gameBoard[oldPos.row][oldPos.col].piece = nil
+                }
+                
+                // if pawn reach end turn it into a queen
+                if gameBoard[row][col].piece?.type == .pawn {
+                    if gameBoard[row][col].piece?.side == .white && row == 0 {
+                        withAnimation {
+                            gameBoard[row][col].piece?.type = .queen
+                        }
+                    } else if gameBoard[row][col].piece?.side == .black && row == 7 {
+                        withAnimation {
+                            gameBoard[row][col].piece?.type = .queen
+                        }
+                    }
+                }
+                
+                // removing highlights
+                withAnimation(.easeOut) {
+                    resetHighlightedTiles()
+                    self.selectedTile = nil
+                }
+                
+                
+                // checking if we have put opposition in check after our move
+                
+                // for each tile
+                for i in gameBoard.indices {
+                    for j in gameBoard[i].indices {
+                        // for each piece on the side we just moved
+                        if let piece = gameBoard[i][j].piece, piece.side == whoMoves {
+                            var gameBoard2 = gameBoard
+                            
+                            // show moves for each piece
+                            showAvailableMoves(for: piece, i, j, gameBoard: &gameBoard2, whoMoves: whoMoves)
+                            
+                            // for each available move, if can take king right now then mark as in check
+                            for xi in gameBoard2.indices {
+                                for xj in gameBoard2[xi].indices {
+                                    if gameBoard2[xi][xj].isHighlighted {
+                                        if let targetPiece = gameBoard2[xi][xj].piece, targetPiece.type == .king, targetPiece.side != whoMoves {
+                                            isInCheck = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // counting available moves to see if checkmate or stalemate occured as a result of our move
+                
+                var validMoveCount = 0
+                // for each tile
+                for i in gameBoard.indices {
+                    for j in gameBoard[i].indices {
+                        // for each piece on the opposition
+                        if let piece = gameBoard[i][j].piece, piece.side != whoMoves {
+                            var gameBoard2 = gameBoard
+                            
+                            // show moves for each piece
+                            showAvailableMoves(for: piece, i, j, gameBoard: &gameBoard2, whoMoves: whoMoves.swapped())
+                            
+                            for yi in gameBoard.indices {
+                                for yj in gameBoard[yi].indices {
+                                    // for each available move
+                                    if gameBoard2[yi][yj].isHighlighted {
+                                        var gameBoard3 = gameBoard
+                                        
+                                        // make the move
+                                        gameBoard3[yi][yj].piece = gameBoard3[i][j].piece
+                                        gameBoard3[i][j].piece = nil
+                                        
+                                        // tracking if king can be taken
+                                        var kingExposed = false
+                                        
+                                        exposureCheck: for xi in gameBoard3.indices {
+                                            for xj in gameBoard3[xi].indices {
+                                                // for each piece on current team
+                                                if let xpiece = gameBoard3[xi][xj].piece, xpiece.side == whoMoves {
+                                                    var gameBoard4 = gameBoard3
+                                                    
+                                                    // show moves for each piece
+                                                    showAvailableMoves(for: xpiece, xi, xj, gameBoard: &gameBoard4, whoMoves: whoMoves)
+                                                    
+                                                    for zi in gameBoard4.indices {
+                                                        for zj in gameBoard4[zi].indices {
+                                                            // for each available move on current team
+                                                            if gameBoard4[zi][zj].isHighlighted {
+                                                                // are we able to capture the king if so flag it
+                                                                if let targetPiece = gameBoard4[zi][zj].piece, targetPiece.type == .king, targetPiece.side != whoMoves {
+                                                                    kingExposed = true
+                                                                    break exposureCheck
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        // sum up all valid moves that dont involve exposing the king
+                                        if !kingExposed {
+                                            validMoveCount += 1
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // if no valid moves, determine checkmate or stalemate
+                if validMoveCount == 0 {
+                    if isInCheck {
+                        endState = .checkmate
+                    } else {
+                        endState = .stalemate
+                    }
+                }
+                
+                // switching whose move it is
+                withAnimation {
+                    whoMoves.swap()
+                }
+            }
+        } else {
+            // no selected piece so select it now
+            guard let piece = gameBoard[row][col].piece, piece.side == whoMoves else { return }
+            withAnimation(.easeIn) {
+                selectedTile = gameBoard[row][col]
+                showAvailableMoves(for: piece, row, col, gameBoard: &gameBoard, whoMoves: whoMoves)
+                filterAvailableMoves(for: piece, row, col, gameBoard: &gameBoard, whoMoves: whoMoves)
+            }
+        }
+    }
+    
     // showing all possible (unfiltered) moves for a piece
-    func showAvailableMoves(for piece: Piece, _ row: Int, _ col: Int, gameBoard: inout [[Tile]], whoMoves: Side) {
+    private func showAvailableMoves(for piece: Piece, _ row: Int, _ col: Int, gameBoard: inout [[Tile]], whoMoves: Side) {
         switch piece.type {
             case .pawn:
                 if piece.side == .white {
@@ -1180,7 +936,7 @@ struct ContentView: View {
     }
     
     // filtering the possible moves for a piece to prevent from putting oneself into check
-    func filterAvailableMoves(for piece: Piece, _ row: Int, _ col: Int, gameBoard: inout [[Tile]], whoMoves: Side) {
+    private func filterAvailableMoves(for piece: Piece, _ row: Int, _ col: Int, gameBoard: inout [[Tile]], whoMoves: Side) {
         for i in gameBoard.indices {
             for j in gameBoard[i].indices {
                 // iterating over each possible move
@@ -1223,7 +979,7 @@ struct ContentView: View {
     }
     
     // remove all highlighted positions from the grid
-    func resetHighlightedTiles() {
+    private func resetHighlightedTiles() {
         for i in gameBoard.indices {
             for j in gameBoard[i].indices {
                 gameBoard[i][j].isHighlighted = false
