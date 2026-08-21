@@ -402,7 +402,25 @@ struct ContentView: View {
                 withAnimation(.easeInOut) {
                     gameBoard[row][col].piece = gameBoard[oldPos.row][oldPos.col].piece
                     gameBoard[row][col].piece?.position = gameBoard[row][col].position
+                    gameBoard[row][col].piece?.hasMoved = true
                     gameBoard[oldPos.row][oldPos.col].piece = nil
+                    
+                    // if user chose to castle, then move rook
+                    if gameBoard[row][col].piece?.type == .king && abs(col - oldPos.col) == 2 {
+                        if col == 6 {
+                            // short side move 2 places
+                            gameBoard[row][5].piece = gameBoard[row][7].piece
+                            gameBoard[row][5].piece?.position = gameBoard[row][5].position
+                            gameBoard[row][5].piece?.hasMoved = true
+                            gameBoard[row][7].piece = nil
+                        } else if col == 2 {
+                            // long side move 3 places
+                            gameBoard[row][3].piece = gameBoard[row][0].piece
+                            gameBoard[row][3].piece?.position = gameBoard[row][3].position
+                            gameBoard[row][3].piece?.hasMoved = true
+                            gameBoard[row][0].piece = nil
+                        }
+                    }
                 }
                 
                 // if pawn reach end turn it into a queen
@@ -539,7 +557,7 @@ struct ContentView: View {
     }
     
     // showing all possible (unfiltered) moves for a piece
-    private func showAvailableMoves(for piece: Piece, _ row: Int, _ col: Int, gameBoard: inout [[Tile]], whoMoves: Side) {
+    private func showAvailableMoves(for piece: Piece, _ row: Int, _ col: Int, gameBoard: inout [[Tile]], whoMoves: Side, allowCastling: Bool = true) {
         switch piece.type {
             case .pawn:
                 if piece.side == .white {
@@ -932,6 +950,79 @@ struct ContentView: View {
                         
                     }
                 }
+                if allowCastling {
+                    checkForCastling(for: piece, row, col, gameBoard: &gameBoard, whoMoves: whoMoves)
+                }
+        }
+    }
+    
+    // check if a tile is under attack by opposition: they can move/take this tile
+    private func isTileAttacked(row: Int, col: Int, by side: Side, gameBoard: [[Tile]]) -> Bool {
+        for i in gameBoard.indices {
+            for j in gameBoard[i].indices {
+                if let piece = gameBoard[i][j].piece, piece.side == side {
+                    var gameBoard2 = gameBoard
+                    
+                    for xi in gameBoard2.indices {
+                        for xj in gameBoard2[xi].indices {
+                            gameBoard2[xi][xj].isHighlighted = false
+                        }
+                    }
+                    
+                    showAvailableMoves(for: piece, i, j, gameBoard: &gameBoard2, whoMoves: side, allowCastling: false)
+                    if gameBoard2[row][col].isHighlighted {
+                        print(row, col, piece, side)
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+    
+    // to castle, tap on the king then if available, a tile two spaces left/right will be highlighted
+    private func checkForCastling(for piece: Piece, _ row: Int, _ col: Int, gameBoard: inout [[Tile]], whoMoves: Side) {
+        guard piece.type == .king, !piece.hasMoved, !isInCheck else { return }
+        
+        let opponent = whoMoves.swapped()
+        
+        // for white
+        if whoMoves == .white && row == 7 && col == 4 {
+            // checking if right side available, if tiles in between empty and not under attack
+            if let rook = gameBoard[7][7].piece, rook.type == .rook, !rook.hasMoved,
+               gameBoard[7][5].piece == nil, gameBoard[7][6].piece == nil {
+                if !isTileAttacked(row: 7, col: 5, by: opponent, gameBoard: gameBoard) && !isTileAttacked(row: 7, col: 6, by: opponent, gameBoard: gameBoard) {
+                    gameBoard[7][6].isHighlighted = true
+                }
+            }
+            
+            // checking if left side available
+            if let rook = gameBoard[7][0].piece, rook.type == .rook, !rook.hasMoved,
+               gameBoard[7][1].piece == nil, gameBoard[7][2].piece == nil, gameBoard[7][3].piece == nil {
+                if !isTileAttacked(row: 7, col: 3, by: opponent, gameBoard: gameBoard) &&
+                    !isTileAttacked(row: 7, col: 2, by: opponent, gameBoard: gameBoard) {
+                    gameBoard[7][2].isHighlighted = true
+                }
+            }
+        }
+        
+        // for black
+        if whoMoves == .black && row == 0 && col == 4 {
+            if let rook = gameBoard[0][7].piece, rook.type == .rook, !rook.hasMoved,
+               gameBoard[0][5].piece == nil, gameBoard[0][6].piece == nil {
+                if !isTileAttacked(row: 0, col: 5, by: opponent, gameBoard: gameBoard) &&
+                    !isTileAttacked(row: 0, col: 6, by: opponent, gameBoard: gameBoard) {
+                    gameBoard[0][6].isHighlighted = true
+                }
+            }
+            
+            if let rook = gameBoard[0][0].piece, rook.type == .rook, !rook.hasMoved,
+               gameBoard[0][1].piece == nil, gameBoard[0][2].piece == nil, gameBoard[0][3].piece == nil {
+                if !isTileAttacked(row: 0, col: 3, by: opponent, gameBoard: gameBoard) &&
+                    !isTileAttacked(row: 0, col: 2, by: opponent, gameBoard: gameBoard) {
+                    gameBoard[0][2].isHighlighted = true
+                }
+            }
         }
     }
     

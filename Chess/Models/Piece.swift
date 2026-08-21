@@ -12,6 +12,7 @@ struct Piece: Equatable, Identifiable, Comparable {
     var type: Class
     let side: Side
     var position: Position
+    var hasMoved = false
     
     func imageName() -> String {
         "\(self.type.rawValue).\(self.side == .black ? "black" : "white")"
