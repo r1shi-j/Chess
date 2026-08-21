@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// TODO: castle, en passant, better animations, sound effects, make use of chess notation
+// TODO: better animations, sound effects, make use of chess notation
 struct ContentView: View {
     // MARK: - Properties
     
@@ -16,6 +16,7 @@ struct ContentView: View {
     @State private var whoMoves: Side = .white
     @State private var whiteDeaths: [Piece] = []
     @State private var blackDeaths: [Piece] = []
+    @State private var enPassantTarget: (row: Int, col: Int)?
     @State private var isInCheck = false
     @State private var endState: EndState?
     @State private var isObserving = false
@@ -348,6 +349,7 @@ struct ContentView: View {
         whoMoves = .white
         whiteDeaths = []
         blackDeaths = []
+        enPassantTarget = nil
         isInCheck = false
         endState = nil
         isObserving = false
@@ -369,7 +371,7 @@ struct ContentView: View {
                 withAnimation(.easeIn) {
                     resetHighlightedTiles()
                     self.selectedTile = gameBoard[row][col]
-                    showAvailableMoves(for: piece, row, col, gameBoard: &gameBoard, whoMoves: whoMoves)
+                    showAvailableMoves(for: piece, row, col, gameBoard: &gameBoard, whoMoves: whoMoves, enPassantTarget: enPassantTarget)
                     filterAvailableMoves(for: piece, row, col, gameBoard: &gameBoard, whoMoves: whoMoves)
                 }
             } else {
@@ -383,6 +385,35 @@ struct ContentView: View {
                 
                 // must have made a valid move so now out of check
                 if isInCheck { isInCheck = false }
+                
+                let oldPos = selectedTile.position.toIndex()
+                let movingPiece = gameBoard[oldPos.row][oldPos.col].piece
+                
+                // enpassant capture handling
+                var nextEnPassantTarget: (row: Int, col: Int)? = nil
+                
+                if movingPiece?.type == .pawn {
+                    // if pawn lands on active enPassantTarget, remove the side pawn
+                    if let target = enPassantTarget, row == target.row && col == target.col {
+                        let capturedRow = (whoMoves == .white) ? row+1 : row-1
+                        if let enPassantPiece = gameBoard[capturedRow][col].piece {
+                            withAnimation(.easeIn) {
+                                if whoMoves == .white {
+                                    blackDeaths.append(enPassantPiece)
+                                } else {
+                                    whiteDeaths.append(enPassantPiece)
+                                }
+                                gameBoard[capturedRow][col].piece = nil
+                            }
+                        }
+                    }
+                    
+                    // If pawn moves 2 squares forward, establish next turn's target
+                    if abs(row - oldPos.row) == 2 {
+                        let passedRow = (whoMoves == .white) ? oldPos.row-1 : oldPos.row+1
+                        nextEnPassantTarget = (passedRow, col)
+                    }
+                }
                 
                 // if takes a piece then add it to the deaths list
                 if let oldPiece = gameBoard[row][col].piece {
@@ -398,7 +429,6 @@ struct ContentView: View {
                 }
                 
                 // swapping the two pieces, and changing the position of the new piece
-                let oldPos = selectedTile.position.toIndex()
                 withAnimation(.easeInOut) {
                     gameBoard[row][col].piece = gameBoard[oldPos.row][oldPos.col].piece
                     gameBoard[row][col].piece?.position = gameBoard[row][col].position
@@ -435,6 +465,9 @@ struct ContentView: View {
                         }
                     }
                 }
+                
+                // et the new enPassantTarget for the next turn
+                self.enPassantTarget = nextEnPassantTarget
                 
                 // removing highlights
                 withAnimation(.easeOut) {
@@ -550,14 +583,14 @@ struct ContentView: View {
             guard let piece = gameBoard[row][col].piece, piece.side == whoMoves else { return }
             withAnimation(.easeIn) {
                 selectedTile = gameBoard[row][col]
-                showAvailableMoves(for: piece, row, col, gameBoard: &gameBoard, whoMoves: whoMoves)
+                showAvailableMoves(for: piece, row, col, gameBoard: &gameBoard, whoMoves: whoMoves, enPassantTarget: enPassantTarget)
                 filterAvailableMoves(for: piece, row, col, gameBoard: &gameBoard, whoMoves: whoMoves)
             }
         }
     }
     
     // showing all possible (unfiltered) moves for a piece
-    private func showAvailableMoves(for piece: Piece, _ row: Int, _ col: Int, gameBoard: inout [[Tile]], whoMoves: Side, allowCastling: Bool = true) {
+    private func showAvailableMoves(for piece: Piece, _ row: Int, _ col: Int, gameBoard: inout [[Tile]], whoMoves: Side, allowCastling: Bool = true, enPassantTarget: (row: Int, col: Int)? = nil) {
         switch piece.type {
             case .pawn:
                 if piece.side == .white {
@@ -574,13 +607,21 @@ struct ContentView: View {
                     }
                     
                     // check if can take left diagonal
-                    if col > 0, let new = gameBoard[row-1][col-1].piece, piece.side != new.side {
-                        gameBoard[row-1][col-1].isHighlighted = true
+                    if col > 0 {
+                        let isStandardCapture = (gameBoard[row-1][col-1].piece != nil && gameBoard[row-1][col-1].piece?.side != piece.side)
+                        let isEnPassant = (enPassantTarget?.row == row-1 && enPassantTarget?.col == col-1)
+                        if isStandardCapture || isEnPassant {
+                            gameBoard[row-1][col-1].isHighlighted = true
+                        }
                     }
                     
                     // check if can take right diagonal
-                    if col < 7, let new = gameBoard[row-1][col+1].piece, piece.side != new.side {
-                        gameBoard[row-1][col+1].isHighlighted = true
+                    if col < 7 {
+                        let isStandardCapture = (gameBoard[row-1][col+1].piece != nil && gameBoard[row-1][col+1].piece?.side != piece.side)
+                        let isEnPassant = (enPassantTarget?.row == row-1 && enPassantTarget?.col == col+1)
+                        if isStandardCapture || isEnPassant {
+                            gameBoard[row-1][col+1].isHighlighted = true
+                        }
                     }
                 } else {
                     guard row < 7 else { return }
@@ -593,12 +634,20 @@ struct ContentView: View {
                         gameBoard[row+2][col].isHighlighted = true
                     }
                     
-                    if col > 0, let new = gameBoard[row+1][col-1].piece, piece.side != new.side {
-                        gameBoard[row+1][col-1].isHighlighted = true
+                    if col > 0 {
+                        let isStandardCapture = (gameBoard[row+1][col-1].piece != nil && gameBoard[row+1][col-1].piece?.side != piece.side)
+                        let isEnPassant = (enPassantTarget?.row == row+1 && enPassantTarget?.col == col-1)
+                        if isStandardCapture || isEnPassant {
+                            gameBoard[row+1][col-1].isHighlighted = true
+                        }
                     }
                     
-                    if col < 7, let new = gameBoard[row+1][col+1].piece, piece.side != new.side {
-                        gameBoard[row+1][col+1].isHighlighted = true
+                    if col < 7 {
+                        let isStandardCapture = (gameBoard[row+1][col+1].piece != nil && gameBoard[row+1][col+1].piece?.side != piece.side)
+                        let isEnPassant = (enPassantTarget?.row == row+1 && enPassantTarget?.col == col+1)
+                        if isStandardCapture || isEnPassant {
+                            gameBoard[row+1][col+1].isHighlighted = true
+                        }
                     }
                 }
             case .rook:
@@ -971,7 +1020,6 @@ struct ContentView: View {
                     
                     showAvailableMoves(for: piece, i, j, gameBoard: &gameBoard2, whoMoves: side, allowCastling: false)
                     if gameBoard2[row][col].isHighlighted {
-                        print(row, col, piece, side)
                         return true
                     }
                 }
