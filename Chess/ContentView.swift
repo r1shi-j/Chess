@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// TODO: better animations, sound effects, make use of chess notation
+// TODO: sound effects, make use of chess notation, calculate when draw
 struct ContentView: View {
     // MARK: - Properties
     
@@ -21,6 +21,7 @@ struct ContentView: View {
     @State private var endState: EndState?
     @State private var isObserving = false
     @State private var isShowingRestartConfirmation = false
+    @Namespace private var chessAnimation
     
     
     // MARK: - Init
@@ -151,7 +152,7 @@ struct ContentView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: 25, maxHeight: 25)
-                    
+                        .transition(.scale(scale: 0.01).combined(with: .opacity))
                 }
             }
             if deaths.count == 0 {
@@ -235,6 +236,8 @@ struct ContentView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: 35, maxHeight: 35)
+                    .matchedGeometryEffect(id: piece.id, in: chessAnimation)
+                    .transition(.scale(scale: 0.01).combined(with: .opacity))
 //                    .rotationEffect(item.piece?.side == .black ? .degrees(180) : .degrees(0))
             }
             
@@ -245,15 +248,9 @@ struct ContentView: View {
                         .opacity(0.4)
                         .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: 10, maxHeight: 10)
-                } else {
-                    Circle()
-                        .fill(.red)
-                        .opacity(0.2)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: 10, maxHeight: 10)
+                        .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                        .allowsHitTesting(false)
                 }
-            } else {
-                
             }
         }
     }
@@ -415,21 +412,27 @@ struct ContentView: View {
                     }
                 }
                 
+                // animation handling
+                let isCapturing = gameBoard[row][col].piece != nil || (gameBoard[oldPos.row][oldPos.col].piece?.type == .pawn && enPassantTarget?.row == row && enPassantTarget?.col == col)
+                let deltaRow = abs(row - oldPos.row)
+                let deltaCol = abs(col - oldPos.col)
+                let distance = max(deltaRow, deltaCol)
+                let slideDuration = isCapturing ? (0.36 + (Double(distance) * 0.33)) : (0.33 + (Double(distance) * 0.16))
+                let slideAnimation: Animation = .timingCurve(0.2, 0.8, 0.2, 1.0, duration: slideDuration)
+                
                 // if takes a piece then add it to the deaths list
                 if let oldPiece = gameBoard[row][col].piece {
-                    if whoMoves == .white {
-                        withAnimation(.easeIn) {
+                    withAnimation(.easeOut(duration: 0.4)) {
+                        if whoMoves == .white {
                             blackDeaths.append(oldPiece)
-                        }
-                    } else {
-                        withAnimation(.easeIn) {
+                        } else {
                             whiteDeaths.append(oldPiece)
                         }
                     }
                 }
                 
                 // swapping the two pieces, and changing the position of the new piece
-                withAnimation(.easeInOut) {
+                withAnimation(slideAnimation) {
                     gameBoard[row][col].piece = gameBoard[oldPos.row][oldPos.col].piece
                     gameBoard[row][col].piece?.position = gameBoard[row][col].position
                     gameBoard[row][col].piece?.hasMoved = true
