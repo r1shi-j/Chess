@@ -108,7 +108,7 @@ struct ContentView: View {
             .padding()
 //            .padding(.top, 35)
             .ignoresSafeArea()
-//            .frame(height: .zero)
+            .frame(height: .zero)
         }
         .sheet(isPresented: $isShowingSettingsSheet) {
             Form {
