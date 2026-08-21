@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// TODO: sound effects, make use of chess notation
+// TODO: sound effects, make use of chess notation, fit for all phones ios27, macos/ipados support
 struct ContentView: View {
     // MARK: - Properties
     
@@ -22,6 +22,8 @@ struct ContentView: View {
     @State private var previousEndState: EndState?
     @State private var isShowingRestartConfirmation = false
     @State private var isShowingDrawConfirmation = false
+    @State private var isShowingSettingsSheet = false
+    @State private var piecePerspective: PiecePerspective = .oneWay
     @Namespace private var chessAnimation
     
     
@@ -72,7 +74,61 @@ struct ContentView: View {
             }
             .padding(40)
         }
+        .onAppear(perform: setupGame)
         .allowsHitTesting(!(endState != nil && (endState == nil && previousEndState != nil)))
+        .toolbarVisibility(.hidden, for: .statusBar)
+        .safeAreaInset(edge: .top) {
+            HStack {
+                HStack {
+                    Button("Reset", systemImage: "arrow.counterclockwise") {
+                        withAnimation {
+                            if previousEndState != nil {
+                                resetGame()
+                            } else {
+                                isShowingRestartConfirmation = true
+                            }
+                        }
+                    }
+                    Button("Reset", systemImage: "hand.wave") {
+                        isShowingDrawConfirmation = true
+                    }
+                    .disabled(endState != nil || (endState == nil && previousEndState != nil))
+                }
+                .padding(.horizontal, 15)
+                
+                Spacer()
+                
+                Button("Settings", systemImage: "gearshape") {
+                    isShowingSettingsSheet = true
+                }
+                .padding(.horizontal, 35)
+            }
+            .labelStyle(.iconOnly)
+            .buttonStyle(.glass)
+            .padding()
+//            .padding(.top, 35)
+            .ignoresSafeArea()
+//            .frame(height: .zero)
+        }
+        .sheet(isPresented: $isShowingSettingsSheet) {
+            Form {
+                Section {
+                    Picker("hi", selection: $piecePerspective) {
+                        ForEach(PiecePerspective.allCases, id: \.rawValue) { option in
+                            Text(option.rawValue)
+                                .tag(option)
+                        }
+                    }
+                    .labelsVisibility(.visible)
+                    .pickerStyle(.segmented)
+                } header: {
+                    Text("Board pieces orientation")
+                } footer: {
+                    Text(piecePerspective.description)
+                }
+            }
+            .presentationDetents([.fraction(0.2)])
+        }
         .alert((endState == .userDraw || endState == .autoDraw) ? "Draw" : "\(whoMoves.swapped().rawValue) Won", item: $endState, actions: { endState in
             Button("Observe", role: .close) {
                 withAnimation {
@@ -104,35 +160,7 @@ struct ContentView: View {
                 }
             }
         }
-        .toolbarVisibility(.hidden, for: .statusBar)
-        .safeAreaInset(edge: .top) {
-            HStack {
-                Button("Reset", systemImage: "arrow.counterclockwise") {
-                    withAnimation {
-                        if previousEndState != nil {
-                            resetGame()
-                        } else {
-                            isShowingRestartConfirmation = true
-                        }
-                    }
-                }
-                Spacer()
-                Button("Reset", systemImage: "hand.wave") {
-                    isShowingDrawConfirmation = true
-                }
-                .disabled(endState != nil || (endState == nil && previousEndState != nil))
-            }
-            .clipShape(.capsule)
-            .labelStyle(.iconOnly)
-            .buttonStyle(.glass)
-            .padding()
-            .padding(.horizontal, 35)
-//            .padding(.top, 35)
-            .ignoresSafeArea()
-            .frame(height: .zero)
-        }
 //        .frame(width: 700, height: 1000)
-        .onAppear(perform: setupGame)
     }
     
     
@@ -252,7 +280,7 @@ struct ContentView: View {
                     .frame(maxWidth: 35, maxHeight: 35)
                     .matchedGeometryEffect(id: piece.id, in: chessAnimation)
                     .transition(.scale(scale: 0.01).combined(with: .opacity))
-//                    .rotationEffect(item.piece?.side == .black ? .degrees(180) : .degrees(0))
+                    .rotationEffect(piecePerspective == .oneWay ? .degrees(0) : (piecePerspective == .showSelf ? (item.piece?.side == .black ? .degrees(180) : .degrees(0)) : (whoMoves == .black ? .degrees(180) : .degrees(0))))
             }
             
             if item.isHighlighted && !(isInCheck && item.piece?.type == .king && item.piece?.side == whoMoves) {
@@ -591,7 +619,7 @@ struct ContentView: View {
                 }
                 
                 // switching whose move it is
-                withAnimation {
+                withAnimation(.linear(duration: 0.3)) {
                     whoMoves.swap()
                 }
             }
