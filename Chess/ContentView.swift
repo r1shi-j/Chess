@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// TODO: sound effects, make use of chess notation, calculate when draw
+// TODO: sound effects, make use of chess notation
 struct ContentView: View {
     // MARK: - Properties
     
@@ -345,13 +345,10 @@ struct ContentView: View {
 //        gameBoard[4][4].piece = Piece(type: .bishop, side: .white, position: .g3)
 //        gameBoard[5][6].piece = Piece(type: .king, side: .white, position: .g3)
         
-//        gameBoard[2][0].piece = Piece(type: .rook, side: .black, position: .a3)
-//        gameBoard[3][2].piece = Piece(type: .queen, side: .white, position: .c3)
-//        gameBoard[4][7].piece = Piece(type: .knight, side: .black, position: .g3)
-//        gameBoard[5][7].piece = Piece(type: .pawn, side: .black, position: .g3)
-//        gameBoard[4][6].piece = Piece(type: .pawn, side: .white, position: .g3)
-//        gameBoard[2][0].piece = Piece(type: .pawn, side: .black, position: .b7)
-//        gameBoard[3][1].piece = Piece(type: .rook, side: .white, position: .b7)
+//        gameBoard[2][0].piece = Piece(type: .king, side: .black, position: .a3)
+//        gameBoard[3][2].piece = Piece(type: .king, side: .white, position: .c3)
+//        gameBoard[5][7].piece = Piece(type: .bishop, side: .black, position: .g3)
+//        gameBoard[4][6].piece = Piece(type: .bishop, side: .white, position: .g3)
     }
     
     // resetting the game board to normal
@@ -483,7 +480,7 @@ struct ContentView: View {
                     }
                 }
                 
-                // et the new enPassantTarget for the next turn
+                // get the new enPassantTarget for the next turn
                 self.enPassantTarget = nextEnPassantTarget
                 
                 // removing highlights
@@ -588,6 +585,9 @@ struct ContentView: View {
                     } else {
                         endState = .stalemate
                     }
+                } else if isDeadPosition(gameBoard: gameBoard) {
+                    // check if board is considered dead, then call a draw
+                    endState = .autoDraw
                 }
                 
                 // switching whose move it is
@@ -606,6 +606,61 @@ struct ContentView: View {
         }
     }
     
+    private func isDeadPosition(gameBoard: [[Tile]]) -> Bool {
+        var whitePieces: [(piece: Piece, row: Int, col: Int)] = []
+        var blackPieces: [(piece: Piece, row: Int, col: Int)] = []
+        
+        // gather all active pieces on the board
+        for i in gameBoard.indices {
+            for j in gameBoard[i].indices {
+                if let piece = gameBoard[i][j].piece {
+                    if piece.side == .white {
+                        whitePieces.append((piece, i, j))
+                    } else {
+                        blackPieces.append((piece, i, j))
+                    }
+                }
+            }
+        }
+        
+        // any pawns, rooks, or queens automatically mean it's not a dead position
+        let majorOrPawns = (whitePieces + blackPieces).filter {
+            $0.piece.type == .pawn || $0.piece.type == .rook || $0.piece.type == .queen
+        }
+        if !majorOrPawns.isEmpty { return false }
+        
+        let whiteMinors = whitePieces.filter { $0.piece.type != .king }
+        let blackMinors = blackPieces.filter { $0.piece.type != .king }
+        
+        // checking all situations considered to be a dead board
+        
+        // 1. King vs King
+        if whiteMinors.isEmpty && blackMinors.isEmpty {
+            return true
+        }
+        
+        // 2. King + Minor vs King (e.g. King + Bishop vs King OR King + Knight vs King)
+        if (whiteMinors.count == 1 && blackMinors.isEmpty) || (blackMinors.count == 1 && whiteMinors.isEmpty) {
+            return true
+        }
+        
+        // 3. King + Bishop vs King + Bishop (Bishops on same square color)
+        if whiteMinors.count == 1 && blackMinors.count == 1 {
+            let w = whiteMinors[0]
+            let b = blackMinors[0]
+            
+            if w.piece.type == .bishop && b.piece.type == .bishop {
+                let whiteBishopSquareColor = (w.row + w.col) % 2
+                let blackBishopSquareColor = (b.row + b.col) % 2
+                if whiteBishopSquareColor == blackBishopSquareColor {
+                    return true
+                }
+            }
+        }
+        
+        return false
+    }
+
     // showing all possible (unfiltered) moves for a piece
     private func showAvailableMoves(for piece: Piece, _ row: Int, _ col: Int, gameBoard: inout [[Tile]], whoMoves: Side, allowCastling: Bool = true, enPassantTarget: (row: Int, col: Int)? = nil) {
         switch piece.type {
