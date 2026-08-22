@@ -75,7 +75,7 @@ struct ContentView: View {
             .padding(40)
         }
         .onAppear(perform: setupGame)
-        .allowsHitTesting(!(endState != nil && (endState == nil && previousEndState != nil)))
+        .allowsHitTesting(!(endState != nil || (endState == nil && previousEndState != nil)))
         .toolbarVisibility(.hidden, for: .statusBar)
         .safeAreaInset(edge: .top) {
             HStack {
